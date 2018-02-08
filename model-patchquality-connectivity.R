@@ -33,12 +33,9 @@ connec <- c("d.a", "d.l", "d.c", "d.g")
 
 # dispersal function
 calc.immigration <- function(Nd,a,dispersal_matrix)	{
-  kernelabund <- dispersal_m%*%Nd
-  ratedisp    <- t(a * disp)
-  immigrants  <- t(apply(kernelabund, 1, function(x) x*ratedisp))
+  immigrants <- dispersal_matrix%*%Nd*a
   return(immigrants)
 }
-
 
 # dispersal rate
 rate <- 0.001
@@ -52,8 +49,9 @@ k <- 1
 ### Patch quality
 
 # growth rates
-r.source <- c(9.4 , 17.8, 21.3, 1.0, 1.92, 1.0, 1.0, 3.63, 1.0, 1.0, 2.78, 1.0)
-r.sink   <- c(1.08, 1.17, 1.20, 1.0, 1.16, 1.0, 1.0, 2.25, 1.0, 1.0, 3.04, 1.0)
+r.source <- c(8.4 ,  16.8,   20.3,  0, 0.92, 0,  0, 2.63,  0,  0, 1.78, 0)
+r.sink   <- c(0.08,  0.16,   0.20,  0, 0.16, 0,  0, 1.25,  0,  0, 2.04, 0)
+
 # patch quality
 ss.prop <- c(0,1,2,3,4,5)
 
@@ -135,7 +133,7 @@ for(conn in seq_along(connec)){
         # environmental condition in each patch per species
         Env <- matrix(rep(0.5), nrow=nSp, ncol=numCom)
         # environmental match
-        enviro <- abs(Env-Env_Opt[,1])*enveff
+        enviro <- (Env-Env_Opt[,1])*enveff
         
         # species initial abundances
         X   <- data.matrix(read.csv(file="initialabundX.csv", header=T) [,-1])
@@ -144,7 +142,7 @@ for(conn in seq_along(connec)){
         for(l in 1:(Tmax)){
           
           # interactions
-          interactions <- abs((BB + t(BB)) %*% (X*(C*enviro))) / abs((BB + t(BB)) %*% (X)) 
+          interactions <- ((BB + t(BB)) %*% (X*(C+enviro))) / ((BB + t(BB)) %*% (X)) 
           interactions[X == 0] <- 0
           # number of migrants in each patch per species
           Immigrants <- t(calc.immigration(Xd, rate, dispersal_m))
@@ -234,4 +232,5 @@ names_samples <- grep("rep_sampled_", x=ls(), value=T)
 rep_samples <- do.call(rbind, mget(names_samples))
 str(rep_samples)
 write.csv(rep_samples, file="cp-timeseries.csv")
+
 
