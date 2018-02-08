@@ -62,6 +62,7 @@ FW <- read.csv(file="foodweb.csv", header=T)
 # number of species
 nSp <- nrow(FW)
 
+# cell mass used to calculate productivity
 mass <- c(4.3e-08,1.96e-07,3.76e-06,1.52e-08,4.77e-09,6.9e-08,9.68e-08,8.05e-08,2.27e-07)
 
 # number of environmental variables
