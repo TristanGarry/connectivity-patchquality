@@ -19,7 +19,7 @@ d.a <- matrix(c(Inf,Inf,Inf,Inf,Inf), nrow=5, ncol=5)
 diag(d.a) <- 0
 d.a
 # linear
-d.l <- matrix(c(0,1.0,Inf,Inf,Inf,1.0), nrow=5, ncol=5)
+d.l <- suppressWarnings(matrix(c(0,1.0,Inf,Inf,Inf,1.0), nrow=5, ncol=5))
 d.l
 # circular
 d.c <- d.l
@@ -84,7 +84,7 @@ experiment <- data.frame(connectivity = rep(NA, each=length(connec)*length(ss.pr
 ### Simulation parameters
 
 # number of replicates
-reps <- 10
+reps <- 100
 
 # simulation length
 Tmax <- 1000
@@ -203,19 +203,19 @@ for(conn in seq_along(connec)){
         productivity <- Xd[,-1:-3] * mass
         results$prod_l [(((loop_id-1)*5)+1):(loop_id*5)] <- apply(productivity, 1, sum)
         results$prod_r [(((loop_id-1)*5)+1):(loop_id*5)] <- sum(productivity)
-        
+      
         loop_id <- loop_id + 1
         
       } # finished all replicates for one treatment level
       
       # regional species abundance time series
       visual <- melt(X_save)
-      mainplotitle <- paste("abund_replicate", r, treatment_id, ".png", sep="")	
-      png(filename=mainplotitle, width=29, height=21, units="cm", res=300)
-      ggplot(visual, aes(x = X3, y = log(value), colour=factor(X2))) +
+      mainplottitle <- paste0("abundance_graphs/rep_", r, "_",connec[conn],ss,"_env",enveff, ".png")	
+      png(mainplottitle)
+      print(ggplot(data = visual, aes(x = X3, y = log(value), colour=factor(X2))) +
         geom_point() + 
         labs(x = "Time", y = "Abundance") +
-        theme_bw()
+        theme_bw())
       dev.off()
       
       id <- treatment_id
@@ -233,5 +233,3 @@ names_samples <- grep("rep_sampled_", x=ls(), value=T)
 rep_samples <- do.call(rbind, mget(names_samples))
 str(rep_samples)
 write.csv(rep_samples, file="cp-timeseries.csv")
-
-
