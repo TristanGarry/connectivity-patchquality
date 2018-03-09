@@ -4,7 +4,7 @@ results[is.na(results)]<-NA
 
 results$connectivity<-factor(results$connectivity, levels=c("d.a","d.l","d.c","d.g"))
 
-metrics <- colnames(results[,6:16])
+metrics <- colnames(results[,6:14])
 
 for (i in 1:length(metrics)){
   png(paste0("metric_graphs/",metrics[i] ,"_env_",enveff,".png"))
