@@ -20,15 +20,18 @@ composition_local <- composition %>%
   summarise_at(vars(colnames(composition[,-(1:7)])),funs(mean(.,na.rm=TRUE),sd(.,na.rm=TRUE)))
 
 
+# plotting community composition
+
 for (c in 1:length(connec)){
   for (q in ss.prop){
     png(paste0("composition_graphs/composition_box_",connec[c] ,q ,".png"))
     boxplot(x = composition[composition$connectivity==c & composition$quality==q & composition$time == 1000,-(1:7)]
             ,xlab="species",ylab="composition",outline=FALSE)
     dev.off()
-    png(paste0("composition_graphs/composition_bar_",c ,q ,".png"))
-    barplot()
-      
+    png(paste0("composition_graphs/composition_bar_",connec[c] ,q ,".png"))
+    barplot(height = t(matrix(composition_local[composition_local$connectivity == c & composition_local$quality == q & composition_local$time == 1000,4:12]))
+            ,names = colnames(composition[,-(1:7)]))
     dev.off()
   }
 }
+
