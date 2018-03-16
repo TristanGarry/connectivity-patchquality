@@ -32,10 +32,10 @@ d.g
 connec <- c("d.a", "d.l", "d.c", "d.g")
 
 # dispersal function
-calc.immigration <- function(Nd,a,dispersal_matrix)	{
-  immigrants <- dispersal_matrix%*%Nd*a
-  return(immigrants)
-}
+#calc.immigration <- function(Nd,a,dispersal_matrix)	{
+ # immigrants <- dispersal_matrix%*%Nd*a
+  #return(immigrants)
+#}
 
 # dispersal rate
 rate <- 0.001
@@ -146,6 +146,8 @@ for(conn in seq_along(connec)){
         base <- c(10000, 10000,   10000,  10000,  20,100,20,100,100,20,20,20,100)
         high <- c(5000000,5000000,5000000,5000000,20,100,20,100,100,20,20,20,100)
         X <- matrix(c(rep(high, times=ss), rep(base, times=(5-ss))), nrow=nSp, ncol=5)
+        ## for stochasticity by population size
+        small_threshold <- matrix(c(rep(high, times=ss), rep(base, times=(5-ss))), nrow=nSp, ncol=5)/2 ## 
         Xd <- t(X)
         
         for(l in 1:(Tmax)){
@@ -161,11 +163,20 @@ for(conn in seq_along(connec)){
       #      stc <- stc + 1
        #   } 
           
-          Xstoch <- matrix (1, nSp, numCom) ## every cell affected +/- 20%
-          for (i in nrow(Xstoch)){
-            for (j in ncol(Xstoch)){
+#         Xstoch <- matrix (1, nSp, numCom) ## every cell affected +/- 20%
+ #        for (i in 1:nrow(Xstoch)){
+  #          for (j in 1:ncol(Xstoch)){
+   #           set.seed(runif(1,0,1000000))
+    #          Xstoch[i,j] <- runif(1, min = 0.8, max = 1.2)
+     #       }
+      #    }
+          
+          Xstoch <- matrix (NA, nSp, numCom) ## as a function of the population size
+          for (i in 1:nrow(Xstoch)){
+            for (j in 1:ncol(Xstoch)){
               set.seed(runif(1,0,1000000))
-              Xstoch[i,j] <- runif(1, min = 0.8, max = 1.2)
+              Xstoch[i,j] <- runif(1, min = sqrt(1 - small_threshold[i,j]/X[i,j])
+                                   , max = sqrt(1 + small_threshold[i,j]/X[i,j]))
             }
           }
           
