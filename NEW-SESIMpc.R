@@ -32,7 +32,6 @@ d.g <- matrix(c(1.0,1.0,1.0,1.0,1.0), nrow=5, ncol=5)
 diag(d.g) <- 0
 d.g
 connec <- c("d.a", "d.l", "d.c", "d.g")
-connec<- c("d.a","d.l")
 
 # dispersal rate
 rate <- 0.001
@@ -46,17 +45,10 @@ k <- 1
 ### Patch quality
 
 # growth rates
-r.source <- c(0,0,0,0,  0, 0.92, 0,  0, 2.63,  0,  0, 1.78, 0)
-r.sink   <- c(0,0,0,0,  0, 0.38, 0,  0, 1.61,  0,  0, 1.49, 0)
-
 r.source <- c(0,8.4 ,  16.8,   20.3, 1.32, 0.92, 1.64,  0.11, 2.63,  0.15, 1.78, 0.48, 1.31)
 r.sink   <- c(0,0.084 ,  0.168,   0.203, 1.82, 0.16, 1.45,  0.00, 1.25,  0.77, 2.04, 1.30, 1.31)
 
-r.source <- c(0,0,0,0, 1.32, 0.92, 1.64,  0.11, 2.63,  0.15, 1.78, 0.48, 1.31)
-r.sink   <- c(0,0,0,0, 1.82, 0.16, 1.45,  0.00, 1.25,  0.77, 2.04, 1.30, 1.31)
-
-
-#
+# environmental effect per patch quality
 e.source <- 1
 e.sink <- 0.1
 
@@ -64,7 +56,7 @@ e.sink <- 0.1
 ### Species
 
 # food web
-#FW <- read.csv(file="foodweb.csv", header=T)
+FW <- read.csv(file="pc-fw.csv", header=T)
 # number of species
 nSp <- nrow(FW)
 
@@ -169,12 +161,10 @@ for(a in rate){
                   envt.v <- c(1,0,1,0,1)
                 } else {
                   envt.v <- c(1,1,1,1,1)
-                  #envt.v <- c(0.2,0.4,0.6,0.8,1)
                 }
                 
                 # species environmental optimum
                 Env_Opt <- matrix(rep(0.5), nSp, nEnv)
-                #Env_Opt <- matrix(runif(nSp, min=0, max=eA), nSp, nEnv)
                 
                 # and
                 # empty data frames for food wed results
@@ -199,7 +189,6 @@ for(a in rate){
                   # environmental condition in each patch per species
                   Env <- matrix(rep(envt.v, each=nSp), nSp, numCom)
                   # environmental match
-                  #enviro <- abs((Env-Env_Opt[,1]))*(enveff)
                   enveff <- c(rep(e.source, times=ss), rep(e.sink, times=(5-ss)))
                   enviro <- t(apply( abs((Env-Env_Opt[,1])), 1, function(x) x * enveff))
                   enviro[is.infinite(enviro)] <- 0
@@ -214,10 +203,8 @@ for(a in rate){
                   interactions[X == 0] <- 0
                   
                   # dispersal
-                  #Migrants   <- apply(X, 2, function(x) x * (a/disp))
                   cMigrants <- matrix(NA, nSp, numCom)
                   for(j in 1:numCom){
-                    #cMigrants[,j] <- X[,j]*sum(dispersal_m[j,])
                     cMigrants[,j] <- X[,j]*(1/(length(dispersal_m[j,][dispersal_m[j,] > 0 & dispersal_m[j,] != Inf])))
                   }
                   Migrants <- apply(cMigrants, 2, function(x) x * (a/disp))
@@ -230,7 +217,6 @@ for(a in rate){
                       cImmigrants[i,j] <- sum((Migrants[i,])*dispersal_m[j,])
                     }
                   }
-                  #Immigrants <- cImmigrants*(a/disp)
                   Immigrants <- cImmigrants
                   Immigrants[is.na(Immigrants)] <- 0
                   Immigrants[is.infinite(Immigrants)] <- 0
@@ -347,27 +333,11 @@ for(a in rate){
                 
               } # finished all replicates for one treatment level
               
-              # food webs
-              # local plot
-              #mainplotitle <- paste("replicate", r, "-", treatment_id, ".png", sep="")	
-              #png(filename=mainplotitle, width=29, height=21, units="cm", res=300)
-              #par(mfrow=c(1,5), mar=c(0,0,0,0), oma=c(1,1,1,1))
-              #for(i in 1:5){
-              #  fw.plot(X[,i], interactionm[,,i])
-              #}
-              #dev.off()
-              # regional plot
-              #mainplotitle <- paste("regional", r, "-", treatment_id, ".png", sep="")	
-              #png(filename=mainplotitle, width=29, height=21, units="cm", res=300)
-              #fw.plot(X_r,intr)
-              #dev.off()
-              
               # species abundance time series
               visual <- melt(X_save)
               mainplotitle <- paste("means", r, treatment_id, ".png", sep="")	
               png(filename=mainplotitle, width=29, height=21, units="cm", res=300)
               print(ggplot(visual, aes(x = X3, y = log(value), colour=factor(X2))) +
-                #geom_point() +
                 stat_summary(fun.y=sum, na.rm=T, geom="line", size=1.2) +
                 labs(x = "Time", y = "Abundance") +
                 theme_bw())
@@ -385,19 +355,4 @@ for(a in rate){
     } 
   }
 } # end
-
-
-ggplot(visual, aes(x = X3, y = log(value), colour=factor(X2))) +
-  stat_summary(fun.y=sum, na.rm=T, geom="line", size=1.2) + 
-  labs(x = "Time", y = "Abundance") +
-  theme_bw()
-
-boxplot(rich_l ~ patchquality*connectivity, ylab="Local richness", data=results)
-boxplot(rich_r ~ patchquality*connectivity, ylab="Regional richness", data=results)
-boxplot(div_l ~ patchquality*connectivity, ylab="Local diversity", data=results)
-boxplot(div_r ~ patchquality*connectivity, ylab="Regional diversity", data=results)
-boxplot(eve_l ~ patchquality*connectivity, ylab="Local evenness", data=results)
-boxplot(eve_r ~ patchquality*connectivity, ylab="Regional evenness", data=results)
-boxplot(prod_l ~ patchquality*connectivity, ylab="Local productivity", data=results)
-boxplot(prod_r ~ patchquality*connectivity, ylab="Regional productivity", data=results)
 
