@@ -11,7 +11,7 @@ id <- 1
 for (ss in ss.prop){
   for(conn in 2:4){
     d = as.numeric(cbind(regional[regional$connectivity == connec[conn] & regional$patchquality == ss,]$div_r
-                         ,regional[regional$connectivity == "d.a" & regional$patchquality == ss,]$div_r))
+                         ,regional[regional$connectivity == connec[conn] & regional$patchquality == 0,]$div_r))
     f = rep(c("Treatment","Control"), each = 10)
     co <- cohen.d(d ~ f)
     dists[id,1] <- paste0(connec[conn],ss)
@@ -24,7 +24,7 @@ for (ss in ss.prop){
 is.na(dists)<-sapply(dists, is.nan); dists[is.na(dists)]<-0; dists[dists$magnitude==0,]$magnitude <- 1
 dists[2:5] <- sapply(dists[2:5], as.numeric)
 for (conn in 2:4){
-  pdf(paste0("rawplots/effsize/",connec[conn] ,".pdf"))
+  pdf(paste0("rawplots/effsize/",connec[conn] ,"3.pdf"))
   dat <- dists[grep(paste0(connec[conn]),x=dists$treatment),]
   plot(0:5, dat$estimate, ylim=range(c(dat$low, dat$high)),
        pch=19, xlab="patch quality", ylab="effect size",

@@ -77,14 +77,15 @@ for (conn in 1:length(connec)){
     geom_line(position=pd, size=1) +
     geom_point(position=pd, size=1) + 
     ylab("coefficient of variation") + 
-    labs(title = paste0(connec[conn])))
+    labs(title = paste0(connec[conn])) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          panel.background = element_blank(), axis.line = element_line(colour = "black")))
   dev.off()
 }
 
 
 ## plots to do
 # CCA 
-# synchrony 
 # CCA distances/differences from centroid
 
 
