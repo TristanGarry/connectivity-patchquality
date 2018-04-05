@@ -10,7 +10,7 @@ results$connectivity<-factor(results$connectivity, levels=c("d.a","d.l","d.c","d
 metrics <- colnames(results[,10:26])
 
 for (i in 1:length(metrics)){
-  png(paste0("rawplots/perpatch_metrics/",metrics[i] ,".png"))
+  pdf(paste0("rawplots/metrics/",metrics[i] ,".pdf"))
   boxplot(as.formula(paste(metrics[i], " ~ patchquality * connectivity * patch")), data=results #,col=3:8
           ,xlab="patch quality x connectivity",ylab=paste(metrics[i]),outline=FALSE)
   dev.off()
@@ -57,6 +57,8 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   return(datac)
 }
 
+library(dplyr); library(reshape)
+
 temp <- rep_samples[-(2:3)];temp <- temp[-(4:5)]; temp <- temp[-(6:10)]
 coef_var <- temp %>%
   group_by(.dots=c("connectivity","quality","replicate","time","patch")) %>% 
@@ -65,10 +67,11 @@ coef_var <- temp %>%
 coef_var <- coef_var %>%  
   transform(coefvar = coef_var[16]/coef_var[15])
 coef_var <- coef_var[coef_var$time == 500,]; coef_var <- coef_var[-1]; coef_var <- coef_var[-(5:15)]
-coef_var_sum <- summarySE(coef_var, measurevar = "sd.1", groupvars = c("patch","connectivity","quality"))
+coef_var_sum <- summarySE(data = coef_var, measurevar = "sd.1"
+                          , groupvars = c("patch","connectivity","quality"), na.rm = TRUE)
 pd <- position_dodge(0.1)
 for (conn in 1:length(connec)){
-  png(paste0("rawplots/perpatch_coefvar/",connec[conn] ,".png"))
+  pdf(paste0("rawplots/perpatch_coefvar/",connec[conn] ,".pdf"))
   print(ggplot(coef_var_sum[coef_var_sum$connectivity==conn,], aes(x=patch, y=sd.1, group=factor(quality), colour=factor(quality))) + 
     geom_errorbar(aes(ymin=sd.1-se, ymax=sd.1+se), width=.3, position=pd) +
     geom_line(position=pd, size=1) +
@@ -80,7 +83,6 @@ for (conn in 1:length(connec)){
 
 
 ## plots to do
-# assembly 
 # CCA 
 # synchrony 
 # CCA distances/differences from centroid

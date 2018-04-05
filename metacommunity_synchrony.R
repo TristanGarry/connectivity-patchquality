@@ -27,7 +27,7 @@ metacommunity_synchrony <- meta.calculate.synchrony(rep_samples)
 for (conn in 1:length(connec)){
   dat <- metacommunity_synchrony[grep(paste0(connec[conn]),x=metacommunity_synchrony$X1),]
   dat$X1 <- factor(dat$X1, levels = paste0(connec[conn],c(0,1,2,3,4,5)))
-  png(paste0("rawplots/synchrony/", connec[conn],".png"))
+  pdf(paste0("rawplots/synchrony/", connec[conn],".pdf"))
   boxplot(X2 ~ X1, data = dat, ylab="synchrony", xlab="treatment",main=paste0(connec[conn]))
   dev.off()
 }

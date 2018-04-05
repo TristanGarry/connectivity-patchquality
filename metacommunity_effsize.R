@@ -24,7 +24,7 @@ for (ss in ss.prop){
 is.na(dists)<-sapply(dists, is.nan); dists[is.na(dists)]<-0; dists[dists$magnitude==0,]$magnitude <- 1
 dists[2:5] <- sapply(dists[2:5], as.numeric)
 for (conn in 2:4){
-  png(paste0("rawplots/effsize/",connec[conn] ,".png"))
+  pdf(paste0("rawplots/effsize/",connec[conn] ,".pdf"))
   dat <- dists[grep(paste0(connec[conn]),x=dists$treatment),]
   plot(0:5, dat$estimate, ylim=range(c(dat$low, dat$high)),
        pch=19, xlab="patch quality", ylab="effect size",
@@ -35,6 +35,7 @@ for (conn in 2:4){
     else if (dat[p+1,]$magnitude==3){points(p + 0.2, dat[p+1,]$estimate,pch=4)}
     else if (dat[p+1,]$magnitude==4){points(p + 0.2, dat[p+1,]$estimate,pch=8)}
   }
+  abline(h=0, lty=2, col = "gray30")
   dev.off()
 }
 
