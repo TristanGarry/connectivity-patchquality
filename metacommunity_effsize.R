@@ -1,17 +1,36 @@
 ## effect size & coefficient of variation
 
-# effect s9ze
-library(effsize)
+# effect size
+library(effsize);library(vegan);library(dplyr)
 
-# comps possible - comparing between connectivities, controls as comparison, using diversity ????
-regional <- aggregate(div_r ~ connectivity * patchquality * r, data = results, mean)
+rep_samples <- na.omit(rep_samples)
+tran_abundance <- rep_samples[c(1,4:5,8:9,15:23)]
+tran_abundance <- aggregate(tran_abundance[6:14], by = tran_abundance[(c(1:2,4:5))], sum)
+tran_abundance[-(1:4)] <- decostand(tran_abundance[-(1:4)], "hellinger", na.rm = TRUE)
+pca_all <- prcomp(tran_abundance[-(1:4)])
+df.pca <- as.data.frame(pca_all$x)
+df.pca <- df.pca[1:2]
+df.pca[3:6] <- tran_abundance[1:4]
+df.pca <- df.pca %>%
+  group_by(time, connectivity, quality) %>%
+  mutate(centr_PC1 = mean(PC1), centr_PC2 = mean(PC2))
+df.pca <- df.pca %>%
+  mutate(dist = sqrt((PC1 - centr_PC1)^2 + (PC2 - centr_PC2)^2))
+df.pca <- df.pca[df.pca$time == 500,]
+
+#regional <- aggregate(div_r ~ connectivity * patchquality * r, data = results, mean)
 dists <- data.frame(matrix(NA,nrow=18,ncol=5))
 colnames(dists) <- c("treatment","estimate","low","high","magnitude")
 id <- 1
 for (ss in ss.prop){
   for(conn in 2:4){
-    d = as.numeric(cbind(regional[regional$connectivity == connec[conn] & regional$patchquality == ss,]$div_r
-                         ,regional[regional$connectivity == connec[conn] & regional$patchquality == 0,]$div_r))
+    dat <- df.pca[df.pca$connectivity == conn & df.pca$quality == ss | 
+                    df.pca$connectivity == 1 & df.pca$quality == 0,]
+    c1 <- dat[1,]$centr_PC1;c2 <- dat[1,]$centr_PC2
+    dat <- dat %>%
+      mutate(dist = sqrt((PC1 - c1)^2 + (PC2 - c2)^2))
+    d = as.numeric(cbind(df.pca[df.pca$connectivity == conn & df.pca$quality == ss,]$dist
+                         ,df.pca[df.pca$connectivity == 1 & df.pca$quality == 0,]$dist))
     f = rep(c("Treatment","Control"), each = 10)
     co <- cohen.d(d ~ f)
     dists[id,1] <- paste0(connec[conn],ss)
@@ -24,7 +43,7 @@ for (ss in ss.prop){
 is.na(dists)<-sapply(dists, is.nan); dists[is.na(dists)]<-0; dists[dists$magnitude==0,]$magnitude <- 1
 dists[2:5] <- sapply(dists[2:5], as.numeric)
 for (conn in 2:4){
-  pdf(paste0("rawplots/effsize/",connec[conn] ,"3.pdf"))
+  pdf(paste0("rawplots/effsize/",connec[conn] ,"test2.pdf"))
   dat <- dists[grep(paste0(connec[conn]),x=dists$treatment),]
   plot(0:5, dat$estimate, ylim=range(c(dat$low, dat$high)),
        pch=19, xlab="patch quality", ylab="effect size",
