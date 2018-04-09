@@ -71,7 +71,7 @@ coef_var <- coef_var[coef_var$time == 500,-c(1,6:16)] # clean data
 coef_var_sum <- summarySE(data = coef_var, measurevar = "sd.1" # variation in coefficient of variation for plotting
                           , groupvars = c("patch","connectivity","quality"), na.rm = TRUE)
 pd <- position_dodge(width = 0.5)
-for (conn in 1:length(connec)){ # plot & save
+for (conn in 1:length(connec)){ # plot by connectivity & save
   pdf(paste0("rawplots/perpatch_coefvar/",connec[conn] ,".pdf"))
   print(ggplot(coef_var_sum[coef_var_sum$connectivity==conn,], aes(x=patch, y=sd.1, group=factor(quality), colour=factor(quality))) + 
     geom_errorbar(aes(ymin=sd.1-se, ymax=sd.1+se, width=1), position=pd) +
@@ -86,6 +86,20 @@ for (conn in 1:length(connec)){ # plot & save
   dev.off()
 }
 
+for (ss in ss.prop){ # plot by patch quality & save
+  pdf(paste0("rawplots/perpatch_coefvar/pc_",ss ,".pdf"))
+  print(ggplot(coef_var_sum[coef_var_sum$quality==ss,], aes(x=patch, y=sd.1, group=factor(connectivity), colour=factor(connectivity))) + 
+          geom_errorbar(aes(ymin=sd.1-se, ymax=sd.1+se, width=1), position=pd) +
+          geom_line(position=pd, size=1.2) +
+          geom_point(aes(x=patch, y=sd.1, group=factor(connectivity), colour=factor(connectivity)), position=pd, size = 3) + 
+          ylab("coefficient of variation of abundances (sd/mean)") + 
+          labs(title = paste0("patchquality=",ss)) + 
+          theme(panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
+          geom_vline(xintercept=c(0.5,1.5,2.5,3.5,4.5), colour='black', size = .1))
+  dev.off()
+}
 ## coefficient of variation - diversity - not finished
 
 temp <- results[c(3:6,10)]
