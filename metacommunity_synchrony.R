@@ -63,7 +63,8 @@ for (conn in 1:length(connec)){
   dat <- metacommunity_patch_synchrony[grep(paste0(connec[conn]),x=metacommunity_patch_synchrony$X1),]
   dat$X1 <- factor(dat$X1, levels = paste0(connec[conn],c(0,1,2,3,4,5)))
   pdf(paste0("rawplots/synchrony/patch_", connec[conn],".pdf"))
-  boxplot(X2 ~ X1, data = dat, ylab="patch synchrony", xlab="treatment",main=paste0(connec[conn]))
+  boxplot(X2 ~ X1, data = dat, ylab="patch synchrony", xlab="treatment",main=paste0(connec[conn]),
+          ylim = c(-1.0,1.0))
   dev.off()
 }
 
