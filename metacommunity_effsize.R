@@ -44,27 +44,49 @@ df.pca <- df.pca %>% # find distance
 
 ## effsize by timestep
 
-dists <- data.frame(matrix(NA,nrow=198,ncol=6)); colnames(dists) <- c("treatment","estimate","low","high","magnitude","time")
+# dists <- data.frame(matrix(NA,nrow=198,ncol=6)); colnames(dists) <- c("treatment","estimate","low","high","magnitude","time")
+# id <- 1
+# for (conn in 2:4){
+#   dat <- df.pca[df.pca$connectivity == conn | df.pca$connectivity == 1,] # subset
+#   for (t in unique(dat$time)[-1]){
+#     dat2 <- dat[dat$time==t,] # subset
+#     for (ss in ss.prop){
+#       dat3 <- dat2[dat2$quality == ss | dat2$quality == 0,] # subset
+#       d = as.numeric(cbind(dat3[dat3$connectivity == conn & dat3$quality == ss,]$dist # isolate distances
+#                            ,dat3[dat3$connectivity == 1 & dat3$quality == 0,]$dist))
+#       f = rep(c("Treatment","Control"), each = 10)
+#       co <- cohen.d(d ~ f)
+#       dists[id,1] <- paste0(connec[conn],ss)
+#       dists[id,2] <- co$estimate
+#       dists[id,3:4] <- co$conf.int
+#       dists[id,5] <- co$magnitude
+#       dists[id,6] <- t
+#       id <- id + 1
+#     }
+#   }
+# }
+
+## TRY AGAIN
+
+dists <- data.frame(matrix(NA,nrow=18,ncol=5))
+colnames(dists) <- c("treatment","estimate","low","high","magnitude")
 id <- 1
-for (conn in 2:4){
-  dat <- df.pca[df.pca$connectivity == conn | df.pca$connectivity == 1,] # subset
-  for (t in unique(dat$time)[-1]){
-    dat2 <- dat[dat$time==t,] # subset
-    for (ss in ss.prop){
-      dat3 <- dat2[dat2$quality == ss | dat2$quality == 0,] # subset
-      d = as.numeric(cbind(dat3[dat3$connectivity == conn & dat3$quality == ss,]$dist # isolate distances
-                           ,dat3[dat3$connectivity == 1 & dat3$quality == 0,]$dist))
-      f = rep(c("Treatment","Control"), each = 10)
-      co <- cohen.d(d ~ f)
-      dists[id,1] <- paste0(connec[conn],ss)
-      dists[id,2] <- co$estimate
-      dists[id,3:4] <- co$conf.int
-      dists[id,5] <- co$magnitude
-      dists[id,6] <- t
-      id <- id + 1
-    }
+for (ss in ss.prop){
+  for(conn in 2:4){
+    d = as.numeric(cbind(df.pca[df.pca$connectivity == conn & df.pca$quality == ss,]$dist,
+                         df.pca[df.pca$connectivity == 1 & df.pca$quality == 0,]$dist))
+    f = rep(c("Treatment","Control"), each = 110)
+    co <- cohen.d(d ~ f, paired = TRUE)
+    dists[id,1] <- paste0(connec[conn],ss)
+    dists[id,2] <- co$estimate
+    dists[id,3:4] <- co$conf.int
+    dists[id,5] <- co$magnitude
+    id = id + 1
   }
 }
+
+
+
 
 ## plotting is for timestep 500 only - ignore for now
 
