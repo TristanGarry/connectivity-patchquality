@@ -48,7 +48,7 @@ coef_var <- temp %>% # mean and sd for each patch
   group_by(.dots=c("connectivity","quality","replicate","time","patch")) %>% 
   transform(mean = rowMeans(temp[6:14])) %>%
   transform(sd = apply(temp[6:14], 1, sd))
-coef_var <- coef_var %>%  # coefficient of variation for each patch
+coef_var <- coef_var %>%  # coefficient of variation for each patch (sd/mean)
   transform(coefvar = coef_var[16]/coef_var[15])
 coef_var <- coef_var[coef_var$time == 500,-c(1,6:16)] # clean data
 coef_var_sum <- summarySE(data = coef_var, measurevar = "sd.1" # variation in coefficient of variation for plotting
@@ -75,8 +75,8 @@ for (conn in 1:length(connec)){ # plot by connectivity & save
 coef_var <- results[c(3:6,10)] # isolate data we want
 coef_var$mean <- ave(coef_var$div_l, coef_var[2:4])
 coef_var$sd <- ave(coef_var$div_l, coef_var[2:4], FUN = sd)
-coef_var$coef_var <- coef_var$sd/coef_var$mean
-coef_var$se <- coef_var$coef_var/(sqrt(2*10))
+coef_var$coef_var <- coef_var$sd/coef_var$mean # coefficient of variation (sd/mean)
+coef_var$se <- coef_var$coef_var/(sqrt(2*10)) # SE as CV/sqrt(2n); where n = 10
 
 pd <- position_dodge(width = 0.5)
 for (conn in 1:length(connec)){

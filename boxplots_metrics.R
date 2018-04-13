@@ -2,7 +2,7 @@
 is.na(results)<-sapply(results, is.infinite)
 results[is.na(results)]<-NA
 
-results$connectivity<-factor(results$connectivity, levels=c("d.a","d.l","d.c","d.g"))
+results$connectivity<-factor(results$connectivity, levels=c("d.a","d.l","d.c","d.g")) # properly order
 
 metrics <- colnames(results[,10:26])
 
