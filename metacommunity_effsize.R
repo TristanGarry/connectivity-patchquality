@@ -1,6 +1,6 @@
 
 # effect size
-library(effsize);library(vegan);library(dplyr);library(ggplot2)#;detach(package:plyr)
+library(effsize);library(vegan);library(dplyr);#library(ggplot2);detach(package:plyr)
 
 ### patchwise differences 
 
@@ -41,6 +41,8 @@ for (ss in ss.prop){
   }
 }
 
+
+## plotting connectivities on different plots
 dists[2:5] <- sapply(dists[2:5], as.numeric)
 for (conn in 2:4){ # plot
   pdf(paste0("rawplots/effsize/",connec[conn] ,"_withingroup.pdf"))
@@ -57,6 +59,35 @@ for (conn in 2:4){ # plot
   abline(h=0, lty=2, col = "gray30") # line for 0
   dev.off()
 }
+
+## plotting connectivities on same plot
+pdf("rawplots/effsize/withingroup.pdf")
+plot(NA, NA, xlim=range(c(dists$low, dists$high)),ylim = c(0,17), 
+     pch=19, ylab="patch quality", xlab="effect size", yaxt = 'n', main = "Within group effect size")
+abline(v = 0, lty=2, col = "gray30") # line for 0
+abline(h = c(5.5, 11.5)) # breaking up groups
+axis(2, at = 0:17, labels = (rep(0:5, 3))) # correctly label axis
+axis(4, at = c(2.5, 8.5, 14.5), labels = c("linear","circular","global"), tick = FALSE) # connectivity
+shift <- 0
+for (conn in 2:4){ # plot
+  dat <- dists[grep(paste0(connec[conn]),x=dists$treatment),]
+  points(dat$estimate, 0:5 + shift, xlim=range(c(dat$low, dat$high)),ylim = c(0,17), 
+       pch=19, ylab="patch quality", xlab="effect size", yaxt = 'n')
+  arrows(dat$low, 0:5 + shift, dat$high, 0:5 + shift, length=0) # confidence interval
+  for (p in 0:5){ # magnitude of difference
+    if (dat[p+1,]$magnitude==2){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=3)}
+    else if (dat[p+1,]$magnitude==3){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=4)}
+    else if (dat[p+1,]$magnitude==4){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=8)}
+  }
+  shift <- shift + 6
+}
+dev.off()
+
+
+
+
+
+
 
 
 
@@ -80,6 +111,7 @@ for (ss in ss.prop){
   }
 }
 
+## plotting connectivities on different plots
 dists[2:5] <- sapply(dists[2:5], as.numeric)
 for (conn in 2:4){ # plot
   pdf(paste0("rawplots/effsize/",connec[conn] ,"_betweengroup.pdf"))
@@ -97,4 +129,26 @@ for (conn in 2:4){ # plot
   dev.off()
 }
 
+## plotting connectivities on same plot
+pdf("rawplots/effsize/betweengroup.pdf")
+plot(NA, NA, xlim=range(c(dists$low, dists$high)),ylim = c(0,17), 
+     pch=19, ylab="patch quality", xlab="effect size", yaxt = 'n', main = "Between group effect size")
+abline(v = 0, lty=2, col = "gray30") # line for 0
+abline(h = c(5.5, 11.5)) # breaking up groups
+axis(2, at = 0:17, labels = (rep(0:5, 3))) # correctly label axis
+axis(4, at = c(2.5, 8.5, 14.5), labels = c("linear","circular","global"), tick = FALSE) # connectivity
+shift <- 0
+for (conn in 2:4){ # plot
+  dat <- dists[grep(paste0(connec[conn]),x=dists$treatment),]
+  points(dat$estimate, 0:5 + shift, xlim=range(c(dat$low, dat$high)),ylim = c(0,17), 
+         pch=19, ylab="patch quality", xlab="effect size", yaxt = 'n')
+  arrows(dat$low, 0:5 + shift, dat$high, 0:5 + shift, length=0) # confidence interval
+  for (p in 0:5){ # magnitude of difference
+    if (dat[p+1,]$magnitude==2){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=3)}
+    else if (dat[p+1,]$magnitude==3){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=4)}
+    else if (dat[p+1,]$magnitude==4){points(dat[p+1,]$estimate + 0.01, p - 0.5 + shift, pch=8)}
+  }
+  shift <- shift + 6
+}
+dev.off()
 
