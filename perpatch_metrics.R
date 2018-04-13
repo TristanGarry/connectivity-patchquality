@@ -1,21 +1,4 @@
 
-
-## per patch effects - * not presentable yet * 
-
-is.na(results)<-sapply(results, is.infinite)
-results[is.na(results)]<-NA
-
-results$connectivity<-factor(results$connectivity, levels=c("d.a","d.l","d.c","d.g"))
-
-metrics <- colnames(results[,10:26])
-
-for (i in 1:length(metrics)){
-  pdf(paste0("rawplots/metrics/",metrics[i] ,".pdf"))
-  boxplot(as.formula(paste(metrics[i], " ~ patchquality * connectivity * patch")), data=results #,col=3:8
-          ,xlab="patch quality x connectivity",ylab=paste(metrics[i]),outline=FALSE)
-  dev.off()
-}
-
 ## coefficient of variation - abundances
 
 library(ggplot2)
@@ -72,7 +55,7 @@ coef_var_sum <- summarySE(data = coef_var, measurevar = "sd.1" # variation in co
                           , groupvars = c("patch","connectivity","quality"), na.rm = TRUE)
 pd <- position_dodge(width = 0.5)
 for (conn in 1:length(connec)){ # plot by connectivity & save
-  pdf(paste0("rawplots/perpatch_coefvar/",connec[conn] ,".pdf"))
+  pdf(paste0("rawplots/perpatch_coefvar/",connec[conn] ,".pdf"),width = 9, height = 6)
   print(ggplot(coef_var_sum[coef_var_sum$connectivity==conn,], aes(x=patch, y=sd.1, group=factor(quality), colour=factor(quality))) + 
     geom_errorbar(aes(ymin=sd.1-se, ymax=sd.1+se, width=1), position=pd) +
     geom_line(position=pd, size=1.2) +
@@ -81,45 +64,33 @@ for (conn in 1:length(connec)){ # plot by connectivity & save
     labs(title = paste0(connec[conn])) + 
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
-    geom_vline(xintercept=c(1.5,2.5,3.5,4.5), colour='black', size = .02, linetype = c))
+          panel.background = element_blank(), axis.line = element_line(colour = "black")) ) #+ 
+    #geom_vline(xintercept=c(1.5,2.5,3.5,4.5), colour='black', size = .02, linetype = c))
   dev.off()
 }
 
-# for (ss in ss.prop){ # plot by patch quality & save
-#   pdf(paste0("rawplots/perpatch_coefvar/pc_",ss ,".pdf"))
-#   print(ggplot(coef_var_sum[coef_var_sum$quality==ss,], aes(x=patch, y=sd.1, group=factor(connectivity), colour=factor(connectivity))) + 
-#           geom_errorbar(aes(ymin=sd.1-se, ymax=sd.1+se, width=1), position=pd) +
-#           geom_line(position=pd, size=1.2) +
-#           geom_point(aes(x=patch, y=sd.1, group=factor(connectivity), colour=factor(connectivity)), position=pd, size = 3) + 
-#           ylab("coefficient of variation of abundances (sd/mean)") + 
-#           labs(title = paste0("patchquality=",ss)) + 
-#           theme(panel.grid.major = element_blank(),
-#                 panel.grid.minor = element_blank(),
-#                 panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
-#           geom_vline(xintercept=c(0.5,1.5,2.5,3.5,4.5), colour='black', size = .02, linetype = c))
-#   dev.off()
-# }
 
-## coefficient of variation - diversity - not finished
+## coefficient of variation - diversity
 
 coef_var <- results[c(3:6,10)] # isolate data we want
 coef_var$mean <- ave(coef_var$div_l, coef_var[2:4])
 coef_var$sd <- ave(coef_var$div_l, coef_var[2:4], FUN = sd)
 coef_var$coef_var <- coef_var$sd/coef_var$mean
+coef_var$se <- coef_var$coef_var/(sqrt(2*10))
 
 pd <- position_dodge(width = 0.5)
 for (conn in 1:length(connec)){
-  pdf(paste0("rawplots/perpatch_coefvar/div_",connec[conn] ,".pdf"))
-  print(ggplot(coef_var[coef_var$connectivity==connec[conn],], aes(x=patch, y=coef_var, group=factor(patchquality), colour=factor(patchquality))) + 
+  pdf(paste0("rawplots/perpatch_coefvar/div_",connec[conn] ,".pdf"),width = 9, height = 6)
+  print(ggplot(coef_var[coef_var$connectivity==connec[conn],], aes(x=patch, y=coef_var, group=factor(patchquality), colour=factor(patchquality))) +
+          geom_errorbar(aes(ymin=coef_var-se, ymax=coef_var+se, width=1), position=pd) +
           geom_line(position=pd, size=1.2) +
           geom_point(aes(x=patch, y=coef_var, group=factor(patchquality), colour=factor(patchquality)), position=pd, size = 3) + 
           ylab("coefficient of variation of diversity (sd/mean)") + 
           labs(title = paste0(connec[conn])) + 
           theme(panel.grid.major = element_blank(),
                 panel.grid.minor = element_blank(),
-                panel.background = element_blank(), axis.line = element_line(colour = "black")) + 
-          geom_vline(xintercept=c(1.5,2.5,3.5,4.5), colour='black', size = .02, linetype = c))
+                panel.background = element_blank(), axis.line = element_line(colour = "black")) ) #+ 
+          #geom_vline(xintercept=c(1.5,2.5,3.5,4.5), colour='black', size = .02, linetype = c))
   dev.off()
 }
 
