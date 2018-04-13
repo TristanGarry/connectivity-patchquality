@@ -377,4 +377,4 @@ for(a in rate){
 names_samples <- grep("rep_sampled_", x=ls(), value=T)
 rep_samples <- do.call(rbind, mget(names_samples))
 rm(list=c(grep("rep_sampled_", x=ls(), value=T)))
-
+rep_samples <- na.omit(unique(rep_samples))
