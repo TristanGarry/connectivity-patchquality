@@ -21,7 +21,9 @@ d.a <- matrix(c(Inf,Inf,Inf,Inf,Inf), nrow=5, ncol=5)
 diag(d.a) <- 0
 d.a
 # linear
+
 d.l <- suppressWarnings(matrix(c(0,1.0,Inf,Inf,Inf,1.0), nrow=5, ncol=5))
+
 d.l
 # circular
 d.c <- d.l
@@ -48,6 +50,7 @@ k <- 1
 r.source <- c(0,8.4 ,  16.8,   20.3, 1.32, 0.92, 1.64,  0.11, 2.63,  0.15, 1.78, 0.48, 1.31)
 r.sink   <- c(0,0.084 ,  0.168,   0.203, 1.82, 0.16, 1.45,  0.00, 1.25,  0.77, 2.04, 1.30, 1.31)
 
+
 # patch quality
 ss.prop <- c(0,1,2,3,4,5)
 
@@ -56,10 +59,13 @@ e.source <- 1
 e.sink <- 0.01
 
 
+
 ### Species
 
 # food web
+
 FW <- read.csv(file="new-fw.csv", header=T)
+
 # number of species
 nSp <- nrow(FW)
 
@@ -73,6 +79,7 @@ mass <- c(4.3e-08,1.96e-07,3.76e-06,1.52e-08,4.77e-09,6.9e-08,9.68e-08,8.05e-08,
 nEnv <- 1
 # environmental niche amplitude
 eA <- 1
+
 # environmental fluctuation period
 eP <- 1
 
@@ -89,7 +96,9 @@ xseed <- as.integer(runif(reps)*100000)
 Tmax <- 500
 
 # sampling frequency
+
 sampfreq <- 50
+
 sampleV <- seq(0, Tmax, by=sampfreq)
 
 # empty array for saving sampled data
@@ -109,6 +118,7 @@ results <- data.frame(loop = rep(1:(dim(experiment)[1]*numCom*reps)),
                       treatment = rep(1:(dim(experiment)[1]), each=5*reps),
                       r = rep(1:reps, each=5),
                       patch = rep(1:5))
+
 
 
 # food web metrics function
@@ -156,6 +166,7 @@ for(a in rate){
                 dispersal_m[is.na(dispersal_m)] <- 0
                 
                 # species interactions strenghts
+
                 BB  <- FW[,-1]
                 matriz  <- BB
                 novamatriz <- matriz
@@ -165,6 +176,7 @@ for(a in rate){
                   }
                 }
                 BB <- as.matrix(novamatriz/nSp)
+
                 
                 # species initial abundances
                 low  <- c(100000 ,100000, 100000 ,100000 ,20,100,20,100,100,20,20,20,100)
@@ -213,7 +225,9 @@ for(a in rate){
                   diff <- C/enviro
                   diff[is.na(diff)] <- enviro[is.na(diff)]
                   diff[is.infinite(diff)] <- enviro[is.infinite(diff)]
+
                   diff[diff==0] <- enviro[diff==0]
+
                   
                   # interactions
                   interactions <- ((BB) %*% (X*(diff)))
@@ -353,12 +367,14 @@ for(a in rate){
               
               # species abundance time series
               visual <- melt(X_save)
+
               mainplottitle <- paste0("abundance_graphs/rep_", r, "_",connec[conn],ss,"_env",enveff, ".png")	
               png(mainplottitle)
               print(ggplot(data = visual, aes(x = X3, y = log(value), by=factor(X2),colour=factor(X2))) +
                       stat_summary(fun.y = sum, na.rm = TRUE, geom ='line',size=1.2) +
                       labs(x = "Time", y = "Abundance") +
                       theme_bw())
+
               dev.off()
               
               id <- treatment_id
@@ -374,7 +390,9 @@ for(a in rate){
   }
 } # end
 
+
 names_samples <- grep("rep_sampled_", x=ls(), value=T)
 rep_samples <- do.call(rbind, mget(names_samples))
 rm(list=c(grep("rep_sampled_", x=ls(), value=T)))
 rep_samples <- na.omit(unique(rep_samples))
+
